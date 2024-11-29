@@ -32,13 +32,16 @@ jobs:
         run: |
           docker build -t ghcr.io/${{ github.repository_owner }}/ue19-lab-05:latest .
 
-      # 4. Scanner l'image Docker avec Trivy (utilisation de la dernière version)
+      # 4. Installer Trivy et scanner l'image Docker
+      - name: Install Trivy
+        run: |
+          curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.29.2/trivy_0.29.2_Linux-64bit.deb -o trivy.deb
+          sudo dpkg -i trivy.deb
+          trivy --version
+
       - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@latest  # Utilisation de la dernière version stable
-        with:
-          image: ghcr.io/${{ github.repository_owner }}/ue19-lab-05:latest
-          format: 'table'
-        continue-on-error: true
+        run: |
+          trivy image ghcr.io/${{ github.repository_owner }}/ue19-lab-05:latest
 
       # 5. Pousser l'image Docker vers GitHub Packages
       - name: Push Docker image
