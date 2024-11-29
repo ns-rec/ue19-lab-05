@@ -1,4 +1,4 @@
-name: Build, Scan and Publish Docker Image
+name: Build, Scan, and Publish Docker Image
 
 on:
   push:
@@ -7,7 +7,12 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest  # Machine virtuelle sur laquelle le workflow sera exécuté
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      packages: write
+      actions: write
 
     steps:
       # 1. Récupérer le code source du repository
@@ -29,7 +34,7 @@ jobs:
 
       # 4. Scanner l'image Docker avec Trivy
       - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@v0.6.0
+        uses: aquasecurity/trivy-action@v0.5.0
         with:
           image: ghcr.io/${{ github.repository_owner }}/ue19-lab-05:latest
           format: 'table'
