@@ -3,27 +3,31 @@ name: Build and Publish Docker Image
 on:
   push:
     branches:
-      - main
+      - main  # Exécuter le workflow seulement sur la branche 'main'
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Machine virtuelle sur laquelle le workflow sera exécuté
 
     steps:
+      # 1. Récupérer le code source du repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2. Se connecter au registre GitHub Container Registry
       - name: Log in to GitHub Packages
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io  # URL du registre GitHub
+          username: ${{ github.actor }}  # Nom de l'utilisateur GitHub qui exécute l'action
+          password: ${{ secrets.GITHUB_TOKEN }}  # Jeton généré automatiquement pour l'authentification
 
+      # 3. Construire l'image Docker
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/${{ github.repository_owner }}/ue19-lab-05:latest .
 
+      # 4. Pousser l'image Docker vers GitHub Packages
       - name: Push Docker image
         run: |
           docker push ghcr.io/${{ github.repository_owner }}/ue19-lab-05:latest
