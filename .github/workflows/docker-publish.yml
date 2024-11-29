@@ -1,33 +1,41 @@
-name: Build and Publish Docker Image
+name: Build, Scan and Publish Docker Image
 
 on:
   push:
     branches:
-      - main  # Exécuter le workflow seulement sur la branche 'main'
+      - main  
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest  # Machine virtuelle sur laquelle le workflow sera exécuté
+    runs-on: ubuntu-latest  
 
     steps:
-      # 1. Récupérer le code source du repository
+      # 1.
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Se connecter au registre GitHub Container Registry
+      # 2.
       - name: Log in to GitHub Packages
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io  # URL du registre GitHub
-          username: ${{ github.actor }}  # Nom de l'utilisateur GitHub qui exécute l'action
-          password: ${{ secrets.GITHUB_TOKEN }}  # Jeton généré automatiquement pour l'authentification
+          registry: ghcr.io  
+          username: ${{ github.actor }}  
+          password: ${{ secrets.GITHUB_TOKEN }}  
 
-      # 3. Construire l'image Docker
+      # 3.
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/${{ github.repository_owner }}/ue19-lab-05:latest .
 
-      # 4. Pousser l'image Docker vers GitHub Packages
+      # 4.
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@v0.6.0
+        with:
+          image: ghcr.io/${{ github.repository_owner }}/ue19-lab-05:latest
+          format: 'table'   
+        continue-on-error: true 
+
+      # 5.
       - name: Push Docker image
         run: |
           docker push ghcr.io/${{ github.repository_owner }}/ue19-lab-05:latest
